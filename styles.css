@@ -1,0 +1,59 @@
+.card-header {
+    text-align: center;
+    border-bottom: 2px solid silver;
+}
+
+.card {
+    margin-top: 3%;
+    width: 60%;
+    margin-right: auto;
+    margin-left: auto;
+    border: 2px solid silver;
+    border-radius: 10px;
+}
+body{
+    background-color: gainsboro;
+}
+
+#card h4 {
+    text-align: center;
+}
+#cardRow {
+    text-align: center;
+}
+
+#buttonDiv {
+    text-align: center;
+    margin-bottom: 10px;
+}
+table {
+    margin-top: 1%;
+}
+table th {
+    text-align: center;
+    font-size: larger;
+    padding: 3px;
+}
+
+table td {
+    text-align: center;
+    font-size: larger;
+    padding: 5px;
+}
+a {
+    font-size: larger;
+}
+
+.form-horizontal .control-label {
+    padding-top: 0;
+}
+#logo {
+
+    width: 200px;
+}
+#logoDiv {
+    width: 100%;
+    text-align: center;
+}
+
+
