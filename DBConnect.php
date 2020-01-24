@@ -45,7 +45,19 @@ class DBConnect
        *  as column names
        *
        */
-       $SQLCreateTable = "CREATE TABLE ".$tableName."(sku VARCHAR(11), cost decimal(15,2), price decimal(15,2), qty int, profit_margin decimal(15,2), total_profit_USD decimal(15,2), total_profit_CAD decimal(15,2))";
+
+        $SQLCheckTable = "DROP TABLE IF EXISTS ".$tableName;
+
+        $resultCheckTable = mysqli_query($conn, $SQLCheckTable);
+
+        if (! empty($resultCheckTable)) {
+            print "success";
+        } else {
+            print "error";
+            print "Problem in dropping table";
+        }
+
+        $SQLCreateTable = "CREATE TABLE ".$tableName."(sku VARCHAR(11), cost decimal(15,2), price decimal(15,2), qty int, profit_margin decimal(15,2), total_profit_USD decimal(15,2), total_profit_CAD decimal(15,2))";
 
        $resultCreateTable = mysqli_query($conn, $SQLCreateTable);
 
@@ -128,19 +140,21 @@ class DBConnect
         }
 
         // Attempt select query execution
-        $sql = "SELECT * FROM" . $this->connectionTable;
+        $sql = "SELECT * FROM " . $this->connectionTable;
 
         if($result = $conn->query($sql)){
+
             if($result->num_rows > 0){
                 while($row = $result->fetch_array()){
+
                     $displayArray = [
                         'sku' => $row['sku'],
-                        'cost' => $row['sku'],
-                        'price' => $row['sku'],
+                        'cost' => $row['cost'],
+                        'price' => $row['price'],
                         'qty' => $row['qty'],
-                        'profitMargin' => $row['profitMargin'],
-                        'totalProfitUSD' => $row['totalProfitUSD'],
-                        'totalProfitCAD' => $row['totalProfitCAD'],
+                        'profitMargin' => $row['profit_margin'],
+                        'totalProfitUSD' => $row['total_profit_USD'],
+                        'totalProfitCAD' => $row['total_profit_CAD'],
                     ];
                 }
 
