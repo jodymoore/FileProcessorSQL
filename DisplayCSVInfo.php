@@ -2,6 +2,7 @@
 
 require_once('Functions.php');
 require_once('header.html');
+require_once('DBConnect.php');
 
 class DisplayCSVInfo
 {
@@ -33,6 +34,8 @@ class DisplayCSVInfo
 
         $counter = 0;
 
+        $displayArray = [];
+
         $curConvert = new CurrencyConversion();
         $Functions = new Functions();
 
@@ -49,76 +52,73 @@ class DisplayCSVInfo
                 <th>TOTAL PROFIT (CAD)</th>
               </tr>";
 
-        // Select all data from csvReports Database using tableName
+       // get display array using DBConnect function getDBData
+        $DBConnection = new DBConnect(
+            "localhost",
+            "admin",
+            "R1HO8MIdHtAKTDbz",
+            "csvReports" ,
+            "$this->tableName");
+        $displayArray = $DBConnection->getDBData();
+
+        var_dump($displayArray);
+        // Iterate over display table data and print table to screen
+        while($row = $displayArray->fetch_array()) {
+
+            // calculate profit margin and total profits
+            $profitMargin = intval((($row->price - $row->cost) / $row->price) * 100);
+            $totalProfitUSD = ($row->price - $row->cost) * $row->qty;
+            $totalProfitUSD = number_format((float)$totalProfitUSD, 2, '.', '');
+
+            //$totalProfitCAD = ($row->price - $row->cost) * $row->qty;
+
+            // convert currency
+            $curConvert->set_usd($totalProfitUSD);
+
+            $temp = $curConvert->convert();
+
+            $totalProfitCAD = number_format((float)$temp, 2, '.', '');
+
+            $totalCost += $row->cost;
+            $totalPrice += $row->price;
+            $totalQty += $row->qty;
+
+            echo "  <tr>
+                    <td>$row->sku</td>
+                    <td>$$row->cost</td>
+                    <td>$$row->price</td>";
+            if ($row->qty > 0) {
+                echo "<td style=' color: green;'> $row->qty</td >";
+
+            } else {
+                echo "<td style=' color: red;'> $row->qty</td >";
+            }
+
+            if ($profitMargin > 0) {
+                echo "<td style=' color: green;'> $profitMargin%</td >";
+            } else {
+                echo "<td style=' color: red;'> $profitMargin% </td >";
+            }
+
+            if ($totalProfitUSD > 0) {
+                echo "<td style=' color: green;'> $$totalProfitUSD </td >";
+            } else {
+                echo "<td style=' color: red;'> $$totalProfitUSD </td >";
+            }
+
+            if ($totalProfitCAD > 0) {
+                echo "<td style=' color: green;'>  $$totalProfitCAD  </td >";
+            } else {
+                echo "<td style=' color: red;'> $$totalProfitCAD  </td ></tr>";
+            }
+
+            $totalProfitUSDAccumulator += $row->totalProfitUSD;
+            $totalProfitCADAccumulator += $row->totalProfitCAD;
+            $counter++;
+        }
 
 
-        // populate a 2d array with table info
-
-        // Iterate over 2d table data and print table to screen
-        
-
-//        // loop over the column size of the inverted array
-//        // this will give the size of the rows needed to display $this->key_value_array['sku']
-//        for ($row = 0; $row < sizeOf($this->key_value_array['sku']); $row++) {
-//            // assign values to variables
-//            $sku = $this->key_value_array['sku'][$row];
-//            $cost = $this->key_value_array['cost'][$row];
-//            $price = $this->key_value_array['price'][$row];
-//            $qty = $this->key_value_array['qty'][$row];
-//
-//            // calculate profit margin and total profits
-//            $profitMargin = intval((($price - $cost) / $price) * 100);
-//            $totalProfitUSD = ($price - $cost) * $qty;
-//            $totalProfitUSD = number_format((float)$totalProfitUSD, 2, '.', '');
-//
-//            $totalProfitCAD = ($price - $cost) * $qty;
-//
-//            // convert currency
-//            $curConvert->set_usd($totalProfitUSD);
-//
-//            $temp = $curConvert->convert();
-//
-//            $totalProfitCAD = number_format((float)$temp, 2, '.', '');
-//
-//            $totalCost += $cost;
-//            $totalPrice += $price;
-//            $totalQty += $qty;
-//
-//            echo "  <tr>
-//                        <td>$sku</td>
-//                        <td>$$cost</td>
-//                        <td>$$price</td>";
-//            if ($qty > 0) {
-//                echo "<td style=' color: green;'> $qty</td >";
-//
-//            } else {
-//                echo "<td style=' color: red;'> $qty</td >";
-//            }
-//
-//            if ($profitMargin > 0) {
-//                echo "<td style=' color: green;'> $profitMargin%</td >";
-//            } else {
-//                echo "<td style=' color: red;'> $profitMargin% </td >";
-//            }
-//
-//            if ($totalProfitUSD > 0) {
-//                echo "<td style=' color: green;'> $$totalProfitUSD </td >";
-//            } else {
-//                echo "<td style=' color: red;'> $$totalProfitUSD </td >";
-//            }
-//
-//            if ($totalProfitCAD > 0) {
-//                echo "<td style=' color: green;'>  $$totalProfitCAD  </td >";
-//            } else {
-//                echo "<td style=' color: red;'> $$totalProfitCAD  </td >";
-//            }
-//
-//            $totalProfitUSDAccumulator += $totalProfitUSD;
-//            $totalProfitCADAccumulator += $totalProfitCAD;
-//            $counter++;
-//        }
-
-        if(sizeof($this->key_value_array['sku']) > 0) {
+        if(sizeof($displayArray) > 0) {
             // calculate averages
             $avgCost = $totalCost / $counter;
             $avgPrice = $totalPrice / $counter;
@@ -131,10 +131,7 @@ class DisplayCSVInfo
             $Functions->alert("No Information Uploaded");
         }
 
-
-            echo "  
-      
-      <tr >
+            echo "  <tr >
     
               <th ></th>
               <th >Avg Cost</th>
